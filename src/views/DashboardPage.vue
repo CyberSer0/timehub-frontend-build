@@ -17,9 +17,10 @@ export default defineComponent({
         try {
             const response = await TimeHubClient.get(`uzytkownikTablice/`, {headers:{Authorization:`Bearer ${this.token}`}});
             store.dispatch('getKanbany', response.data);
+            this.kanbany = response.data;
         } catch (error) {
             this.kanbany = "Nie można było pobrać danych"
-    }
+        }
     },
     data: () => {
         return {
@@ -41,9 +42,17 @@ export default defineComponent({
                 {
                     headers:{Authorization:`Bearer ${this.token}`}
                 });
+                this.tytul = '';
+                this.czy_zautomatyzowane = false;
             }
             catch (error) {
                 console.log(error);
+            }
+            try {
+                const response = await TimeHubClient.get(`uzytkownikTablice/`, {headers:{Authorization:`Bearer ${this.token}`}});
+                this.kanbany = response.data;
+            } catch (error) {
+                this.kanbany = "Nie można było pobrać danych"
             }
         }
     }
@@ -76,7 +85,7 @@ export default defineComponent({
             <h2>Twoje kanbany</h2>
             <div class="kanbany">
                 <div class="kanban" v-for="kanban in kanbany" :key="kanban.tablica.id">
-                    <router-link to="/kanban">
+                    <router-link :to='"/kanban/" + kanban.tablica.id'>
                         <img :src="require('../assets/kanban.png')" alt="" />
                         <h3>{{kanban.tablica.tytul}}</h3>
                     </router-link>
