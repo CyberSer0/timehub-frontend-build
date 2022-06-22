@@ -5,14 +5,7 @@ import axios from "axios";
 import store from "@/store";
 import KomponentOpcji from "./KomponentOpcji.vue";
 import { useRoute } from "vue-router";
-
-const TimeHubClient = axios.create({
-  baseURL: "https://projekt-timehub.herokuapp.com/api/",
-  timeout: 1000,
-  headers: {
-    // "Content-Type": "application/json",
-  },
-});
+import TimeHubClient from "@/axios-client";
 
 const props = defineProps<{
   id: number;
@@ -36,6 +29,17 @@ onBeforeMount(async () => {
     cols.value.push(col);
   });
 });
+
+async function updateKolumnyWKanbanie() {
+  const colsInitResponse = await TimeHubClient.get("tablicaKolumny/" + route.params.id + "/");
+  //console.log(colsInitResponse.data);
+  colsInitResponse.data.forEach(() => {
+      cols.value.pop();
+    });
+  colsInitResponse.data.forEach((col: Kol) => {
+    cols.value.push(col);
+  });
+}
 
 async function utworzKolumne() {
   const response = await TimeHubClient.post(
@@ -63,6 +67,7 @@ async function utworzKolumne() {
         col="{col}"
         v-for="col in cols"
         :key="col.id"
+        @zmiana-kolumny="updateKolumnyWKanbanie"
       />
       <button class="kursorDodajacyKolumny" v-on:click="utworzKolumne">
         <div class="plusKursoraDodajacegoZawartoscKolumny">+</div>
